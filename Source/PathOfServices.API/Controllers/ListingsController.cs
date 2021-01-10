@@ -2,9 +2,7 @@
 
 namespace PathOfServices.API.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ListingsController : ControllerBase
+    public class ListingsController : PathOfServicesControllerBase
     {
         [HttpGet]
         public IActionResult Index()

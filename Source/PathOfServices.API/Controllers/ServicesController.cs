@@ -7,9 +7,7 @@ using PathOfServices.Business.Database;
 
 namespace PathOfServices.API.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class ServicesController : ControllerBase
+    public class ServicesController : PathOfServicesControllerBase
     {
         private PathOfServicesDbContext DBContext { get; }
         public ServicesController(PathOfServicesDbContext dbContext)

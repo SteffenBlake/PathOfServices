@@ -18,14 +18,15 @@ namespace PathOfServices.API
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+        private IWebHostEnvironment WebHostEnvironment { get; }
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
+            WebHostEnvironment = webHostEnvironment ?? throw new ArgumentNullException(nameof(webHostEnvironment));
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             var config = Configuration.Get<PathOfServicesConfig>();
@@ -40,6 +41,15 @@ namespace PathOfServices.API
             {
                 Console.Error.WriteLine("Please specify a valid ConnectionString in your AppSettings");
                 Environment.Exit(1);
+            }
+
+            if (WebHostEnvironment.IsDevelopment())
+            {
+                services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.AllowAnyOrigin()));
+            }
+            else
+            {
+                services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.WithOrigins(config.AllowedOrigins)));
             }
 
             services.AddSingleton(config);
@@ -86,19 +96,23 @@ namespace PathOfServices.API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             // Auto migrate EFCore Database
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                var config = serviceScope.ServiceProvider.GetRequiredService<PathOfServicesConfig>();
+            using var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
 
-                loggerFactory.AddFile(config.Logging.Path, config.Logging.MinimumLevel);
+            var config = serviceScope.ServiceProvider.GetRequiredService<PathOfServicesConfig>();
 
-                var migrator = serviceScope.ServiceProvider.GetRequiredService<IDBMigrator>();
-                migrator.ExecuteAsync().Wait();
-            }
+            loggerFactory.AddFile(config.Logging.Path, config.Logging.MinimumLevel);
+
+            var migrator = serviceScope.ServiceProvider.GetRequiredService<IDBMigrator>();
+            migrator.ExecuteAsync().Wait();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseCors(cors => cors.AllowAnyOrigin());
+            }
+            else
+            {
+                app.UseCors(cors => cors.WithOrigins(config.AllowedOrigins));
             }
 
             app.UseSwagger();
