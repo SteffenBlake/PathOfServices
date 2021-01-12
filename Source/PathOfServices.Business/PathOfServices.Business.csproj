@@ -9,13 +9,18 @@
     <Compile Remove="Migrations\20210109005648_InitialMigration.Designer.cs" />
     <Compile Remove="Migrations\20210109012904_InitialMigration.cs" />
     <Compile Remove="Migrations\20210109012904_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20210109014228_InitialMigration.cs" />
+    <Compile Remove="Migrations\20210109014228_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20210112033247_InitialMigration_Identity.cs" />
+    <Compile Remove="Migrations\20210112033247_InitialMigration_Identity.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.10" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.10" />
   </ItemGroup>
 
 </Project>

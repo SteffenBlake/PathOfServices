@@ -3,12 +3,15 @@ using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using PathOfServices.API.Middleware;
+using PathOfServices.API.Swagger;
 using PathOfServices.Business.Configuration;
 using PathOfServices.Business.Database;
 using PathOfServices.Business.Services.Abstractions;
@@ -49,7 +52,7 @@ namespace PathOfServices.API
             }
             else
             {
-                services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.WithOrigins(config.AllowedOrigins)));
+                services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.WithOrigins(config.Origin)));
             }
 
             services.AddSingleton(config);
@@ -67,7 +70,21 @@ namespace PathOfServices.API
                     };
                 });
 
+
+            services
+                .AddIdentityCore<UserEntity>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.SignIn.RequireConfirmedEmail = false;
+                    options.SignIn.RequireConfirmedPhoneNumber = false;
+                    options.User.RequireUniqueEmail = false;
+                })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<PathOfServicesDbContext>();
+
             services.AddTransient<IDBMigrator, DBMigrator>();
+
+            services.AddMemoryCache(mem => mem.SizeLimit = config.MemoryCacheSizeLimitBytes);
 
             services.AddControllers();
             services.AddSwaggerGen(gen =>
@@ -89,7 +106,12 @@ namespace PathOfServices.API
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 gen.IncludeXmlComments(xmlPath);
+
+                // Auto append "access_token" property to authorize queries
+                gen.OperationFilter<AuthAccessTokenOperationFilter>();
             });
+
+            services.AddTransient<OAuthTokenMiddleWare>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -112,7 +134,7 @@ namespace PathOfServices.API
             }
             else
             {
-                app.UseCors(cors => cors.WithOrigins(config.AllowedOrigins));
+                app.UseCors(cors => cors.WithOrigins(config.Origin));
             }
 
             app.UseSwagger();
@@ -127,6 +149,7 @@ namespace PathOfServices.API
 
             app.UseRouting();
 
+            app.UseMiddleware<OAuthTokenMiddleWare>();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

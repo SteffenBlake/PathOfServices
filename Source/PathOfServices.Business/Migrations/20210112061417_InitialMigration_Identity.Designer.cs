@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PathOfServices.Business.Database;
@@ -9,9 +10,10 @@ using PathOfServices.Business.Database;
 namespace PathOfServices.Business.Migrations
 {
     [DbContext(typeof(PathOfServicesDbContext))]
-    partial class PathOfServicesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210112061417_InitialMigration_Identity")]
+    partial class InitialMigration_Identity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

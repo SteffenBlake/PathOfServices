@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace PathOfServices.Business.Database
+﻿namespace PathOfServices.Business.Models
 {
-    public class UserEntity : IdentityUser
+    public class ProfileResponse
     {
         public string Name { get; set; }
         public string UUID { get; set; }

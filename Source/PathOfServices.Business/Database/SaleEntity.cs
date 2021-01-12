@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PathOfServices.Business.Database
 {
-    public class OrderEntity : EntityBase
+    public class SaleEntity : EntityBase
     {
         public decimal Value { get; set; }
 
