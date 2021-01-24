@@ -12,22 +12,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/@microsoft/signalr@5.0.2/dist/browser/signalr.min.js"></script>
 <script src="web/config.js"></script>
-<script src="web/application.js"></script>
 
-<h1>Hello World!</h1>
-    
-<div id="application" data-v-app="">
-    <div>
-        <div>Key: 2SPRTG</div>
-        <div>Description: Crafting - +2 to Support Gems</div>
-        <div>Category: Crafting</div>
+    <div id="application">
+        <application></application>
     </div>
-</div>
 
-<script>
-    var app = Vue.createApp(new Application());
-    app.mount("#application");
+<script type="module">
+    import { ApplicationRoot } from './web/application-root.js';
+    window.Vue.createApp(new ApplicationRoot()).mount("#application");
 </script>
 
 </body>

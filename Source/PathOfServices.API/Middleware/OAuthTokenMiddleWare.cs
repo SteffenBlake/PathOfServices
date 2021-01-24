@@ -32,7 +32,10 @@ namespace PathOfServices.API.Middleware
         {
             try
             {
-                var tokenVal = context.Request.Query["access_token"].First();
+                if (!context.Request.Cookies.ContainsKey("access_token"))
+                    return;
+
+                var tokenVal = context.Request.Cookies["access_token"];
 
                 var token = DBContext.OAuthTokens.Include(t => t.User)
                     .SingleOrDefault(t => t.Value == tokenVal);

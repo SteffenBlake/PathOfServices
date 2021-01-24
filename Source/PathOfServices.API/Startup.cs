@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
@@ -10,8 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using PathOfServices.API.Hubs;
 using PathOfServices.API.Middleware;
+using PathOfServices.API.Services.Implementations;
 using PathOfServices.API.Swagger;
+using PathOfServices.Business;
 using PathOfServices.Business.Configuration;
 using PathOfServices.Business.Database;
 using PathOfServices.Business.Services.Abstractions;
@@ -46,18 +50,11 @@ namespace PathOfServices.API
                 Environment.Exit(1);
             }
 
-            if (WebHostEnvironment.IsDevelopment())
-            {
-                services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.AllowAnyOrigin()));
-            }
-            else
-            {
-                services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.WithOrigins(config.Origin)));
-            }
+            services.AddCors(cors => cors.AddDefaultPolicy(policy => policy.WithOrigins(config.Origin).AllowCredentials().AllowAnyHeader()));
 
             services.AddSingleton(config);
             services.AddLogging();
-
+             
             // Business Services
             services
                 .AddDbContext<PathOfServicesDbContext>(options =>
@@ -69,7 +66,6 @@ namespace PathOfServices.API
                         _ => throw new ArgumentOutOfRangeException(nameof(config.ConnectionType))
                     };
                 });
-
 
             services
                 .AddIdentityCore<UserEntity>(options =>
@@ -87,13 +83,19 @@ namespace PathOfServices.API
             services.AddMemoryCache(mem => mem.SizeLimit = config.MemoryCacheSizeLimitBytes);
 
             services.AddControllers();
+
+            services.AddSignalR();
+            services.AddTransient<ITestEventHandler, TestEventHandler>();
+
             services.AddSwaggerGen(gen =>
             {
                 gen.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
                     Title = "Path of Services API",
-                    Description = "Open API for Path of Services",
+                    Description =
+@"Open API for Path of Services <br />
+<a href='/api/oauth/authorize' target='_blank'>Click here to authenticate!</a> (Refresh this window after authenticating)",
                     TermsOfService = new Uri("https://raw.githubusercontent.com/SteffenBlake/PathOfServices/main/LICENSE"),
                     License = new OpenApiLicense
                     {
@@ -130,12 +132,9 @@ namespace PathOfServices.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseCors(cors => cors.AllowAnyOrigin());
             }
-            else
-            {
-                app.UseCors(cors => cors.WithOrigins(config.Origin));
-            }
+
+            app.UseCors();
 
             app.UseSwagger();
 
@@ -155,6 +154,8 @@ namespace PathOfServices.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapHub<TestHub>("/hubs" + TestHub.EndPoint);
             });
         }
     }

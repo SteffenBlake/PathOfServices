@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -31,18 +29,8 @@ namespace PathOfServices.API.Swagger
             if (!isAuthorized)
                 return;
 
-            operation.Parameters ??= new List<OpenApiParameter>();
-
-            operation.Parameters.Add(new OpenApiParameter
-            {
-                Name = "access_token",
-                Description = "Method requires authorization via Access Token obtained from OAuth",
-                Required = true,
-                In = ParameterLocation.Query,
-                AllowEmptyValue = false
-            });
-
             operation.Responses.Add("401", new OpenApiResponse{ Description = "Unauthorized" });
+            operation.Responses.Add("403", new OpenApiResponse { Description = "Forbidden" });
         }
     }
 }

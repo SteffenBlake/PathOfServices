@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PathOfServices.Business.Database;
 
 namespace PathOfServices.API.Controllers
 {
+    [Authorize]
     public class ServicesController : PathOfServicesControllerBase
     {
         private PathOfServicesDbContext DBContext { get; }

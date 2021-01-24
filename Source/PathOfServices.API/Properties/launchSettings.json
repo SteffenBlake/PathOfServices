@@ -17,10 +17,18 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "PathOfServices.API": {
+    "Console + Browser": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "http://localhost:5002",
+      "applicationUrl": "http://localhost:5002",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Console": {
+      "commandName": "Project",
+      "launchBrowser": false,
       "applicationUrl": "http://localhost:5002",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

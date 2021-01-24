@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -37,11 +38,6 @@ namespace PathOfServices.API.Controllers
         [AllowAnonymous]
         public RedirectResult Authorize()
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                return BackToHome();
-            }
-
             // Generate a random 16char GUID nonce to validate on the callback
             var nonce = Guid.NewGuid().ToString().Replace("-", "");
 
@@ -74,12 +70,6 @@ namespace PathOfServices.API.Controllers
         [AllowAnonymous]
         public async Task<RedirectResult> AuthorizeCallback(string code, string state)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                // User manually navigated to OAuth endpoint, send them back home
-                return BackToHome();
-            }
-
             if (string.IsNullOrEmpty(state) || !Memory.TryGetValue(state, out _))
             {
                 // Unrecognized Nonce, go back home
@@ -107,7 +97,7 @@ namespace PathOfServices.API.Controllers
                     .OAuthTokens
                     .FirstOrDefault(t =>
                         t.UserId == codeEntity.UserId && (t.Expiry == null || t.Expiry.Value > DateTime.Now)
-                    )?.Value;
+                    );
 
             // This user already has a valid access token, lets just use that instead
             if (token != null)
@@ -138,12 +128,6 @@ namespace PathOfServices.API.Controllers
         [AllowAnonymous]
         public async Task<RedirectResult> TokenCallback(string access_token, long? expires_in)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                // User manually navigated to OAuth endpoint, send them back home
-                return BackToHome();
-            }
-
             var token = await EnsureUserAsync(access_token);
 
             if (expires_in.HasValue)
@@ -154,29 +138,25 @@ namespace PathOfServices.API.Controllers
             await DBContext.AddAsync(token);
             await DBContext.SaveChangesAsync();
 
-            return BackToHome(access_token);
+            return BackToHome(token);
         }
 
         [NonAction]
-        private RedirectResult BackToHome()
+        private RedirectResult BackToHome(OAuthTokenEntity token = null)
         {
-            if (User.Identity.IsAuthenticated)
-            {
-                return BackToHome(User.FindFirst(OauthClaimTypes.AccessToken).Value);
-            }
-
-            throw new AuthenticationException("Attempted to send a user to Auth Home without an Access Token");
-        }
-
-        [NonAction]
-        private RedirectResult BackToHome(string access_token)
-        {
-            if (string.IsNullOrEmpty(access_token))
+            if (token == null)
                 return Redirect(Config.Origin);
 
-            var targetUri = QueryHelpers.AddQueryString(Config.Origin, nameof(access_token), access_token);
+            var cookieOptions = new CookieOptions
+            {
+                Path = "/",
+                IsEssential = true,
+                Expires = token.Expiry,
+            };
 
-            return Redirect(targetUri);
+            Response.Cookies.Append("access_token", token.Value, cookieOptions);
+
+            return Redirect(Config.Origin);
         }
 
         [NonAction]
