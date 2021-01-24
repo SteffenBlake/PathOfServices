@@ -5,23 +5,25 @@
     <meta name="author" content="">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 </head>
-<body>
+<body class="bg-dark text-light">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.prod.js"></script>
 <script src="https://unpkg.com/@microsoft/signalr@5.0.2/dist/browser/signalr.min.js"></script>
 <script src="web/config.js"></script>
 
-    <div id="application">
-        <application></application>
-    </div>
+<div id="application">
+    <app></app>
+</div>
 
 <script type="module">
-    import { ApplicationRoot } from './web/application-root.js';
-    window.Vue.createApp(new ApplicationRoot()).mount("#application");
+    import { Application } from './web/application.js';
+    const app = new Application();
+    window.Vue.createApp({ components: { app } }).mount("#application");
 </script>
 
 </body>

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
+using PathOfServices.API.Models.OAuth;
 using PathOfServices.Business;
 using PathOfServices.Business.Configuration;
 using PathOfServices.Business.Database;
@@ -32,6 +33,17 @@ namespace PathOfServices.API.Controllers
             Memory = memory;
             DBContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        }
+
+        [HttpGet("Validate")]
+        [AllowAnonymous]
+        public IActionResult Validate()
+        {
+            var result = new OAuthValidationResult
+            {
+                Success = User.Identity.IsAuthenticated
+            };
+            return Ok(result) ;
         }
 
         [HttpGet("Authorize")]
