@@ -16,7 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "web", "web", "{3B63C3D3-F76
 	ProjectSection(SolutionItems) = preProject
 		..\web\application.js = ..\web\application.js
 		..\web\config.js = ..\web\config.js
+		..\web\data.js = ..\web\data.js
 		..\web\example.js = ..\web\example.js
+		..\web\orders.js = ..\web\orders.js
+		..\web\sales.js = ..\web\sales.js
+		..\web\search.js = ..\web\search.js
+		..\web\template.js = ..\web\template.js
 	EndProjectSection
 EndProject
 Global
